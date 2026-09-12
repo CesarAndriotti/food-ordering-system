@@ -7,7 +7,7 @@ import java.util.Objects;
 public class Money {
 
     private final BigDecimal amount; //Final para hacerlo inmutable
-    private static final Money ZERO = new Money(BigDecimal.ZERO);
+    public static final Money ZERO = new Money(BigDecimal.ZERO);
     public Money(BigDecimal amount) {
         this.amount = amount;
     }

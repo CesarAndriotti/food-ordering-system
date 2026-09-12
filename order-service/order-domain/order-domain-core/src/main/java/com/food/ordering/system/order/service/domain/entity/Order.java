@@ -1,13 +1,14 @@
 package com.food.ordering.system.order.service.domain.entity;
 
 import com.food.ordering.system.domain.entity.AggregateRoot;
+import com.food.ordering.system.order.service.domain.exception.OrderDomainException;
+import com.food.ordering.system.order.service.domain.valueobject.OrderItemId;
 import com.food.ordering.system.order.service.domain.valueobject.StreetAddress;
-import com.food.ordering.system.valueobject.CustomerId;
-import com.food.ordering.system.valueobject.Money;
-import com.food.ordering.system.valueobject.OrderId;
-import com.food.ordering.system.valueobject.RestaurantId;
+import com.food.ordering.system.order.service.domain.valueobject.TrackingId;
+import com.food.ordering.system.valueobject.*;
 
 import java.util.List;
+import java.util.UUID;
 
 public class Order extends AggregateRoot <OrderId> {
 
@@ -19,12 +20,12 @@ public class Order extends AggregateRoot <OrderId> {
     private final List<OrderItem> items;
 
     //Ests no son final porque se van a cambiar a medida que el pedido se vaya procesando
-    private TrakingId trackingId;
+    private TrackingId trackingId;
     private OrderStatus orderStatus;
     private List<String> failureMessages;
 
     public void initializeId() {
-        setId(new OrderId(UUID.randomUUID());
+        super.setId(new OrderId(UUID.randomUUID()));
         trackingId = new TrackingId(UUID.randomUUID());
         orderStatus = OrderStatus.PENDING;
         initializeOrderItems();
@@ -50,9 +51,9 @@ public class Order extends AggregateRoot <OrderId> {
     }
 
     private void validateItemsPrice() {
-        Money orderItemsTotal = items.stream().forEach(orderItem -> {
-            validateItemsPrice(orderItem);
-            return orderItem.getSubTotal();
+        Money orderItemsTotal = items.stream().map(orderItem -> {
+            validateItemPrice(orderItem);
+            return orderItem.getSubtotal();
         }).reduce(Money.ZERO, Money::add); //Se reduce a un solo valor, que es la suma de todos los subtotales
         if(!price.equals(orderItemsTotal)) {
             throw new OrderDomainException("Total price: " + price.getAmount() + " is not equal to Order items total: " + orderItemsTotal.getAmount());
@@ -105,7 +106,7 @@ public class Order extends AggregateRoot <OrderId> {
         return items;
     }
 
-    public TrakingId getTrackingId() {
+    public TrackingId getTrackingId() {
         return trackingId;
     }
 
@@ -124,7 +125,7 @@ public class Order extends AggregateRoot <OrderId> {
         private StreetAddress deliveryAddress;
         private Money price;
         private List<OrderItem> items;
-        private TrakingId trackingId;
+        private TrackingId trackingId;
         private OrderStatus orderStatus;
         private List<String> failureMessages;
 
@@ -165,7 +166,7 @@ public class Order extends AggregateRoot <OrderId> {
             return this;
         }
 
-        public Builder trackingId(TrakingId val) {
+        public Builder trackingId(TrackingId val) {
             trackingId = val;
             return this;
         }
