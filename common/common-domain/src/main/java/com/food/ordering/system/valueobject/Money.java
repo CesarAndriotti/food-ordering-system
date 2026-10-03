@@ -14,12 +14,10 @@ public class Money {
 
     //A los Value Object se le puede agregar algo de logica como esta que es como una validacion
     public boolean isGreaterThanZero(){
-
         return this.amount != null && this.amount.compareTo(BigDecimal.ZERO) > 0;
     }
 
     public boolean isGreaterThan(Money money){
-
         return this.amount != null && this.amount.compareTo(money.getAmount()) > 0;
     }
 

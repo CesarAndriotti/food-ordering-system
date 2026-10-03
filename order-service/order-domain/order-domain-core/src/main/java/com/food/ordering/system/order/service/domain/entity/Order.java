@@ -19,11 +19,21 @@ public class Order extends AggregateRoot <OrderId> {
     private final Money price;
     private final List<OrderItem> items;
 
-    //Ests no son final porque se van a cambiar a medida que el pedido se vaya procesando
+    //Estas son clases que estan en order-domain-core
     private TrackingId trackingId;
     private OrderStatus orderStatus;
     private List<String> failureMessages;
 
+
+    public void initializeOrder() {
+        super.setId(new OrderId(UUID.randomUUID()));
+        trackingId = new TrackingId(UUID.randomUUID());
+        orderStatus = OrderStatus.PENDING;
+        initializeOrderItems();
+
+    }
+
+    //Metodo para inicializar el id del pedido, el tracking id y el estado del pedido
     public void initializeId() {
         super.setId(new OrderId(UUID.randomUUID()));
         trackingId = new TrackingId(UUID.randomUUID());
@@ -32,24 +42,72 @@ public class Order extends AggregateRoot <OrderId> {
 
     }
 
+    //Valida que el pedido este en estado inicial, que el precio total sea mayor a cero
+    // y que el precio total sea igual a la suma de los subtotales de los items
     public void validateOrder() {
         validateInitialOrder();
         validateTotalPrice();
         validateItemsPrice();
     }
 
+    //Pay method, cambia el estado del pedido a pagado si esta en estado pendiente, de lo contrario lanza una excepcion
+    public void pay() {
+        if(orderStatus != OrderStatus.PENDING) {
+            throw new OrderDomainException("Order is not in correct state for payment");
+        }
+        orderStatus = OrderStatus.PAID;
+    }
+
+    //aprove method, cambia el estado del pedido a aprobado si esta en estado pagado, de lo contrario lanza una excepcion
+    public void approve() {
+        if(orderStatus != OrderStatus.PAID) {
+            throw new OrderDomainException("Order is not in correct state for approval");
+        }
+        orderStatus = OrderStatus.APPROVED;
+    }
+
+    //InitCancel method, cambia el estado del pedido a cancelado si esta en estado pendiente o pagado, de lo contrario lanza una excepcion
+    public void initCancel(List<String> failureMessages) {
+        if(orderStatus != OrderStatus.PAID && orderStatus != OrderStatus.PENDING) {
+            throw new OrderDomainException("Order is not in correct state for cancellation");
+        }
+        orderStatus = OrderStatus.CANCELLING;
+        updateFailureMessages(failureMessages);
+    }
+
+    //Cancel method, cambia el estado del pedido a cancelado si esta en estado pendiente o pagado, de lo contrario lanza una excepcion
+    public void cancel(List<String> failureMessages) {
+        if(orderStatus != OrderStatus.CANCELLING && orderStatus != OrderStatus.PENDING) {
+            throw new OrderDomainException("Order is not in correct state for cancellation");
+        }
+        orderStatus = OrderStatus.CANCELLED;
+        updateFailureMessages(failureMessages);
+    }
+
+    private void updateFailureMessages(List<String> failureMessages) {
+        if(this.failureMessages != null && failureMessages != null) {
+            this.failureMessages.addAll(failureMessages.stream().filter(message -> !message.isEmpty()).toList());
+        }
+        if(this.failureMessages == null) {
+            this.failureMessages = failureMessages;
+        }
+    }
+
+    //Valida que el pedido este en estado inicial, es decir que no tenga id ni estado
     private void validateInitialOrder() {
         if (orderStatus != null || getId() != null) {
             throw new OrderDomainException("Order is not in correct state for initialization");
         }
     }
 
+    //Valida que el precio total del pedido sea mayor a cero
     private void validateTotalPrice() {
         if (price == null || !price.isGreaterThanZero()) {
             throw new OrderDomainException("Total price must be greater than zero");
         }
     }
 
+    //Valida que el precio total del pedido sea igual a la suma de los subtotales de los items
     private void validateItemsPrice() {
         Money orderItemsTotal = items.stream().map(orderItem -> {
             validateItemPrice(orderItem);
@@ -60,12 +118,14 @@ public class Order extends AggregateRoot <OrderId> {
         }
     }
 
+    //Valida que el precio del item sea mayor a cero, que sea igual al precio del producto y que el subtotal sea igual al precio por la cantidad
     private void validateItemPrice(OrderItem orderItem) {
         if(!orderItem.isPriceValid()) {
             throw new OrderDomainException("Order item price: " + orderItem.getPrice().getAmount() + " is not valid for product " + orderItem.getProduct().getId().getValue());
         }
     }
 
+    //Inicializa los items del pedido, asignandoles el id del pedido y un id unico para cada item
     private void initializeOrderItems() {
         long itemId = 1;
         for (OrderItem orderItem : items) {
@@ -73,6 +133,7 @@ public class Order extends AggregateRoot <OrderId> {
         }
     }
 
+    //Constructor privado para que solo se pueda crear a traves del builder
     private Order(Builder builder) {
         super.setId(builder.orderId);
         customerId = builder.customerId;
@@ -85,7 +146,7 @@ public class Order extends AggregateRoot <OrderId> {
         failureMessages = builder.failureMessages;
     }
 
-
+    //Getters
     public CustomerId getCustomerId() {
         return customerId;
     }
@@ -118,6 +179,7 @@ public class Order extends AggregateRoot <OrderId> {
         return failureMessages;
     }
 
+    //Builder class for Order
     public static final class Builder {
         private OrderId orderId;
         private CustomerId customerId;
@@ -129,6 +191,7 @@ public class Order extends AggregateRoot <OrderId> {
         private OrderStatus orderStatus;
         private List<String> failureMessages;
 
+        //Constructors and builder methods
         private Builder() {
         }
 
