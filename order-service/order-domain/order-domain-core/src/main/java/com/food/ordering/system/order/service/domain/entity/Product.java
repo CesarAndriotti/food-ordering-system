@@ -6,6 +6,9 @@ import com.food.ordering.system.valueobject.ProductId;
 
 public class Product extends BaseEntity<ProductId> {
 
+    private String name;
+    private Money price;
+
     //Hay campos que se le pueden agregar usando el constructor del padre, o sea el super
     public Product(ProductId productId, String name, Money price) {
         super.setId(productId);
@@ -13,8 +16,10 @@ public class Product extends BaseEntity<ProductId> {
         this.price = price;
     }
 
-    private String name;
-    private Money price;
+    public void updateWithConfirmedNameAndPrice(String name, Money price) {
+        this.name = name;
+        this.price = price;
+    }
 
     public String getName() {
         return name;

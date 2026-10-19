@@ -7,10 +7,10 @@ import com.food.ordering.system.valueobject.OrderId;
 
 public class OrderItem extends BaseEntity<OrderItemId> {
 
-    //No se prefirio lombok para esta logica de negocio
+    // No se prefirio lombok para esta logica de negocio
     // porque se necesita un control mas fino de la creacion de objetos
 
-    //No se hacen final porque se actualizan
+    // Las que no son final es porque se actualizan
     private OrderId orderId;
     private final Product product;
     private final int quantity;
@@ -28,6 +28,8 @@ public class OrderItem extends BaseEntity<OrderItemId> {
                 price.equals(product.getPrice()) &&
                 price.multiply(quantity).equals(subtotal);
     }
+
+
 
     //Patron constructor builder, para crear objetos complejos
     private OrderItem(Builder builder) {
@@ -57,6 +59,10 @@ public class OrderItem extends BaseEntity<OrderItemId> {
 
     public Money getSubtotal() {
         return subtotal;
+    }
+
+    public void updateProductInformation(String name, Money price) {
+
     }
 
     //Metodos staticos para crear el builder

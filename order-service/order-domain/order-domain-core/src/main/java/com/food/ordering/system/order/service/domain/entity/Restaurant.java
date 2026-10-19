@@ -15,6 +15,13 @@ public class Restaurant extends AggregateRoot<RestaurantId> {
         products = builder.products;
     }
 
+    public boolean isActive() {
+        return active;
+    }
+
+    public List<Product> getProducts() {
+        return products;
+    }
 
     public static final class Builder {
         private RestaurantId restaurantId;

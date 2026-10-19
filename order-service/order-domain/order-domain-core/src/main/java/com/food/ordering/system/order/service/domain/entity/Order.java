@@ -33,6 +33,14 @@ public class Order extends AggregateRoot <OrderId> {
 
     }
 
+    //Valida que el pedido este en estado inicial, que el precio total sea mayor a cero
+    // y que el precio total sea igual a la suma de los subtotales de los items
+    public void validateOrder() {
+        validateInitialOrder();
+        validateTotalPrice();
+        validateItemsPrice();
+    }
+
     //Metodo para inicializar el id del pedido, el tracking id y el estado del pedido
     public void initializeId() {
         super.setId(new OrderId(UUID.randomUUID()));
@@ -42,13 +50,6 @@ public class Order extends AggregateRoot <OrderId> {
 
     }
 
-    //Valida que el pedido este en estado inicial, que el precio total sea mayor a cero
-    // y que el precio total sea igual a la suma de los subtotales de los items
-    public void validateOrder() {
-        validateInitialOrder();
-        validateTotalPrice();
-        validateItemsPrice();
-    }
 
     //Pay method, cambia el estado del pedido a pagado si esta en estado pendiente, de lo contrario lanza una excepcion
     public void pay() {

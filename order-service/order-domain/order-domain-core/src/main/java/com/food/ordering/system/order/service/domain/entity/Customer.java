@@ -7,7 +7,7 @@ public class Customer extends AggregateRoot<CustomerId> {
     private final String username;
 
     public Customer(CustomerId customerId, String username) {
-        super(customerId);
+        super.setId(customerId);
         this.username = username;
     }
 
