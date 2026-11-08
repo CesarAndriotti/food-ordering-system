@@ -1,16 +1,15 @@
-package com.food.ordering.system.order.service.domain.entity;
+package com.food.ordering.system.order.service.domain.dto.domain.entity;
 
 import com.food.ordering.system.domain.entity.BaseEntity;
-import com.food.ordering.system.order.service.domain.valueobject.OrderItemId;
+import com.food.ordering.system.order.service.domain.dto.domain.valueobject.OrderItemId;
 import com.food.ordering.system.valueobject.Money;
 import com.food.ordering.system.valueobject.OrderId;
 
+/**
+ * Entidad interna del agregado Order para una línea de producto.
+ */
 public class OrderItem extends BaseEntity<OrderItemId> {
 
-    // No se prefirio lombok para esta logica de negocio
-    // porque se necesita un control mas fino de la creacion de objetos
-
-    // Las que no son final es porque se actualizan
     private OrderId orderId;
     private final Product product;
     private final int quantity;
@@ -29,9 +28,6 @@ public class OrderItem extends BaseEntity<OrderItemId> {
                 price.multiply(quantity).equals(subtotal);
     }
 
-
-
-    //Patron constructor builder, para crear objetos complejos
     private OrderItem(Builder builder) {
         super.setId(builder.orderItemId);
         product = builder.product;
@@ -65,7 +61,9 @@ public class OrderItem extends BaseEntity<OrderItemId> {
 
     }
 
-    //Metodos staticos para crear el builder
+    /**
+     * Builder explícito para construir líneas de orden con valores de negocio.
+     */
     public static final class Builder {
         private OrderItemId orderItemId;
         private Product product;
@@ -105,7 +103,7 @@ public class OrderItem extends BaseEntity<OrderItemId> {
             return this;
         }
 
-        public com.food.ordering.system.order.service.domain.entity.OrderItem build() {
+        public OrderItem build() {
             return new OrderItem(this);
         }
     }

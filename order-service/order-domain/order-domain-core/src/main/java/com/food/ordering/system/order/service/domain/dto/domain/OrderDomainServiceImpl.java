@@ -1,11 +1,11 @@
-package com.food.ordering.system.order.service.domain;
+package com.food.ordering.system.order.service.domain.dto.domain;
 
-import com.food.ordering.system.order.service.domain.entity.Order;
-import com.food.ordering.system.order.service.domain.entity.Product;
-import com.food.ordering.system.order.service.domain.entity.Restaurant;
-import com.food.ordering.system.order.service.domain.event.OrderCancelledEvent;
-import com.food.ordering.system.order.service.domain.event.OrderCreatedEvent;
-import com.food.ordering.system.order.service.domain.event.OrderPaidEvent;
+import com.food.ordering.system.order.service.domain.dto.domain.entity.Order;
+import com.food.ordering.system.order.service.domain.dto.domain.entity.Product;
+import com.food.ordering.system.order.service.domain.dto.domain.entity.Restaurant;
+import com.food.ordering.system.order.service.domain.dto.domain.event.OrderCancelledEvent;
+import com.food.ordering.system.order.service.domain.dto.domain.event.OrderCreatedEvent;
+import com.food.ordering.system.order.service.domain.dto.domain.event.OrderPaidEvent;
 import lombok.extern.java.Log;
 
 import java.time.ZoneId;
@@ -13,6 +13,9 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 @Log
+/**
+ * Implementación de reglas de transición del agregado Order.
+ */
 public class OrderDomainServiceImpl implements OrderDomainService {
 
     public static final String UTC = "UTC";
@@ -20,8 +23,8 @@ public class OrderDomainServiceImpl implements OrderDomainService {
     public OrderCreatedEvent validateAndInitiateOrder(Order order, Restaurant restaurant) {
         validateRestaurant(restaurant);
         setOrderProcuctInformation(order, restaurant);
-        order.validateOrder(); // Validate the order
-        order.initializeOrder(); // Initialize the order
+        order.validateOrder();
+        order.initializeOrder();
         log.info("Order with id: " + order.getId().getValue() + " is initiated");
         return new OrderCreatedEvent(order, ZonedDateTime.now(ZoneId.of(UTC)));
     }

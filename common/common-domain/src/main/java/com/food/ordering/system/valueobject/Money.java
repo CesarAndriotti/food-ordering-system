@@ -4,15 +4,17 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
 
+/**
+ * Value object monetario inmutable usado en reglas de precio del dominio.
+ */
 public class Money {
 
-    private final BigDecimal amount; //Final para hacerlo inmutable
+    private final BigDecimal amount;
     public static final Money ZERO = new Money(BigDecimal.ZERO);
     public Money(BigDecimal amount) {
         this.amount = amount;
     }
 
-    //A los Value Object se le puede agregar algo de logica como esta que es como una validacion
     public boolean isGreaterThanZero(){
         return this.amount != null && this.amount.compareTo(BigDecimal.ZERO) > 0;
     }

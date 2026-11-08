@@ -1,10 +1,18 @@
 from pathlib import Path
+import sys
 
 from fpdf import FPDF
 
 BASE_DIR = Path(__file__).resolve().parent
-md_path = BASE_DIR / "arquitectura-actual-es.md"
-pdf_path = BASE_DIR / "arquitectura-actual-es.pdf"
+
+
+def resolve_paths() -> tuple[Path, Path]:
+    if len(sys.argv) == 3:
+        return BASE_DIR / sys.argv[1], BASE_DIR / sys.argv[2]
+    return BASE_DIR / "arquitectura-actual-es.md", BASE_DIR / "arquitectura-actual-es.pdf"
+
+
+md_path, pdf_path = resolve_paths()
 
 content = md_path.read_text(encoding="utf-8")
 

@@ -1,15 +1,17 @@
-package com.food.ordering.system.order.service.domain.entity;
+package com.food.ordering.system.order.service.domain.dto.domain.entity;
 
 import com.food.ordering.system.domain.entity.BaseEntity;
 import com.food.ordering.system.valueobject.Money;
 import com.food.ordering.system.valueobject.ProductId;
 
+/**
+ * Entidad de producto utilizada para validar disponibilidad y precio en la orden.
+ */
 public class Product extends BaseEntity<ProductId> {
 
     private String name;
     private Money price;
 
-    //Hay campos que se le pueden agregar usando el constructor del padre, o sea el super
     public Product(ProductId productId, String name, Money price) {
         super.setId(productId);
         this.name = name;

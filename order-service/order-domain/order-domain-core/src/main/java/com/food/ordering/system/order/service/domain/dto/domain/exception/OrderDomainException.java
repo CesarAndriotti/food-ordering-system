@@ -1,4 +1,4 @@
-package com.food.ordering.system.order.service.domain.exception;
+package com.food.ordering.system.order.service.domain.dto.domain.exception;
 
 public class OrderDomainException extends com.food.ordering.system.domain.exception.DomainException {
 

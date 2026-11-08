@@ -12,16 +12,24 @@
     <artifactId>order-application-service</artifactId>
 
     <properties>
-
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.food.ordering.system</groupId>
             <artifactId>order-domain-core</artifactId>
-            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.food.ordering.system</groupId>
+            <artifactId>common-domain</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.0.2</version>
         </dependency>
     </dependencies>
 
 </project>
-

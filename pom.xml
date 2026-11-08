@@ -20,13 +20,9 @@
         <relativePath/>
     </parent>
 
-    <packaging>pom</packaging> <!-- es la forma de empaquetar -->
+    <packaging>pom</packaging>
 
     <properties>
-        <!--<maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>-->
     </properties>
 
     <dependencyManagement>
@@ -56,15 +52,12 @@
                 <artifactId>order-messaging</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <!-- Cada vez que agregamos un modulo lo escribimos aca -->
             <dependency>
                 <groupId>com.food.ordering.system</groupId>
                 <artifactId>common-domain</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
-
-        <!-- NO TIENE DEPENDENCIA DE DOMAIN -->
     </dependencyManagement>
     <dependencies>
         <dependency>
@@ -82,7 +75,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <!--<version>${maven-compiler-plugin.version}</version>-->
                 <configuration>
                     <release>17</release>
                 </configuration>

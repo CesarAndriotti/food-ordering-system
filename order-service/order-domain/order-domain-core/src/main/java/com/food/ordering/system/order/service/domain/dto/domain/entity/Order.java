@@ -1,10 +1,10 @@
-package com.food.ordering.system.order.service.domain.entity;
+package com.food.ordering.system.order.service.domain.dto.domain.entity;
 
 import com.food.ordering.system.domain.entity.AggregateRoot;
-import com.food.ordering.system.order.service.domain.exception.OrderDomainException;
-import com.food.ordering.system.order.service.domain.valueobject.OrderItemId;
-import com.food.ordering.system.order.service.domain.valueobject.StreetAddress;
-import com.food.ordering.system.order.service.domain.valueobject.TrackingId;
+import com.food.ordering.system.order.service.domain.dto.domain.exception.OrderDomainException;
+import com.food.ordering.system.order.service.domain.dto.domain.valueobject.OrderItemId;
+import com.food.ordering.system.order.service.domain.dto.domain.valueobject.StreetAddress;
+import com.food.ordering.system.order.service.domain.dto.domain.valueobject.TrackingId;
 import com.food.ordering.system.valueobject.*;
 
 import java.util.List;
@@ -12,19 +12,19 @@ import java.util.UUID;
 
 public class Order extends AggregateRoot <OrderId> {
 
-    //Estas son clases que estan en common-domain
     private final CustomerId customerId;
     private final RestaurantId restaurantId;
     private final StreetAddress deliveryAddress;
     private final Money price;
     private final List<OrderItem> items;
 
-    //Estas son clases que estan en order-domain-core
     private TrackingId trackingId;
     private OrderStatus orderStatus;
     private List<String> failureMessages;
 
-
+    /**
+     * Inicializa la orden recién creada con ids técnicos y estado inicial.
+     */
     public void initializeOrder() {
         super.setId(new OrderId(UUID.randomUUID()));
         trackingId = new TrackingId(UUID.randomUUID());
@@ -33,15 +33,20 @@ public class Order extends AggregateRoot <OrderId> {
 
     }
 
-    //Valida que el pedido este en estado inicial, que el precio total sea mayor a cero
-    // y que el precio total sea igual a la suma de los subtotales de los items
+    /**
+     * Aplica las invariantes de creación del agregado.
+     */
     public void validateOrder() {
         validateInitialOrder();
         validateTotalPrice();
         validateItemsPrice();
     }
 
-    //Metodo para inicializar el id del pedido, el tracking id y el estado del pedido
+    /**
+     * Inicializa la identidad y estado de la orden.
+     *
+     * <p>Se mantiene por compatibilidad con llamadas existentes.</p>
+     */
     public void initializeId() {
         super.setId(new OrderId(UUID.randomUUID()));
         trackingId = new TrackingId(UUID.randomUUID());
@@ -51,7 +56,9 @@ public class Order extends AggregateRoot <OrderId> {
     }
 
 
-    //Pay method, cambia el estado del pedido a pagado si esta en estado pendiente, de lo contrario lanza una excepcion
+    /**
+     * Transición PENDING -> PAID.
+     */
     public void pay() {
         if(orderStatus != OrderStatus.PENDING) {
             throw new OrderDomainException("Order is not in correct state for payment");
@@ -59,7 +66,9 @@ public class Order extends AggregateRoot <OrderId> {
         orderStatus = OrderStatus.PAID;
     }
 
-    //aprove method, cambia el estado del pedido a aprobado si esta en estado pagado, de lo contrario lanza una excepcion
+    /**
+     * Transición PAID -> APPROVED.
+     */
     public void approve() {
         if(orderStatus != OrderStatus.PAID) {
             throw new OrderDomainException("Order is not in correct state for approval");
@@ -67,7 +76,9 @@ public class Order extends AggregateRoot <OrderId> {
         orderStatus = OrderStatus.APPROVED;
     }
 
-    //InitCancel method, cambia el estado del pedido a cancelado si esta en estado pendiente o pagado, de lo contrario lanza una excepcion
+    /**
+     * Inicia cancelación para compensación de pago o rechazo posterior.
+     */
     public void initCancel(List<String> failureMessages) {
         if(orderStatus != OrderStatus.PAID && orderStatus != OrderStatus.PENDING) {
             throw new OrderDomainException("Order is not in correct state for cancellation");
@@ -76,7 +87,9 @@ public class Order extends AggregateRoot <OrderId> {
         updateFailureMessages(failureMessages);
     }
 
-    //Cancel method, cambia el estado del pedido a cancelado si esta en estado pendiente o pagado, de lo contrario lanza una excepcion
+    /**
+     * Finaliza cancelación y mueve la orden a estado terminal CANCELLED.
+     */
     public void cancel(List<String> failureMessages) {
         if(orderStatus != OrderStatus.CANCELLING && orderStatus != OrderStatus.PENDING) {
             throw new OrderDomainException("Order is not in correct state for cancellation");
@@ -94,39 +107,34 @@ public class Order extends AggregateRoot <OrderId> {
         }
     }
 
-    //Valida que el pedido este en estado inicial, es decir que no tenga id ni estado
     private void validateInitialOrder() {
         if (orderStatus != null || getId() != null) {
             throw new OrderDomainException("Order is not in correct state for initialization");
         }
     }
 
-    //Valida que el precio total del pedido sea mayor a cero
     private void validateTotalPrice() {
         if (price == null || !price.isGreaterThanZero()) {
             throw new OrderDomainException("Total price must be greater than zero");
         }
     }
 
-    //Valida que el precio total del pedido sea igual a la suma de los subtotales de los items
     private void validateItemsPrice() {
         Money orderItemsTotal = items.stream().map(orderItem -> {
             validateItemPrice(orderItem);
             return orderItem.getSubtotal();
-        }).reduce(Money.ZERO, Money::add); //Se reduce a un solo valor, que es la suma de todos los subtotales
+        }).reduce(Money.ZERO, Money::add);
         if(!price.equals(orderItemsTotal)) {
             throw new OrderDomainException("Total price: " + price.getAmount() + " is not equal to Order items total: " + orderItemsTotal.getAmount());
         }
     }
 
-    //Valida que el precio del item sea mayor a cero, que sea igual al precio del producto y que el subtotal sea igual al precio por la cantidad
     private void validateItemPrice(OrderItem orderItem) {
         if(!orderItem.isPriceValid()) {
             throw new OrderDomainException("Order item price: " + orderItem.getPrice().getAmount() + " is not valid for product " + orderItem.getProduct().getId().getValue());
         }
     }
 
-    //Inicializa los items del pedido, asignandoles el id del pedido y un id unico para cada item
     private void initializeOrderItems() {
         long itemId = 1;
         for (OrderItem orderItem : items) {
@@ -134,7 +142,6 @@ public class Order extends AggregateRoot <OrderId> {
         }
     }
 
-    //Constructor privado para que solo se pueda crear a traves del builder
     private Order(Builder builder) {
         super.setId(builder.orderId);
         customerId = builder.customerId;
@@ -147,7 +154,6 @@ public class Order extends AggregateRoot <OrderId> {
         failureMessages = builder.failureMessages;
     }
 
-    //Getters
     public CustomerId getCustomerId() {
         return customerId;
     }
@@ -180,7 +186,9 @@ public class Order extends AggregateRoot <OrderId> {
         return failureMessages;
     }
 
-    //Builder class for Order
+    /**
+     * Builder explícito para construir el agregado con control de estado inicial.
+     */
     public static final class Builder {
         private OrderId orderId;
         private CustomerId customerId;
@@ -192,7 +200,6 @@ public class Order extends AggregateRoot <OrderId> {
         private OrderStatus orderStatus;
         private List<String> failureMessages;
 
-        //Constructors and builder methods
         private Builder() {
         }
 
@@ -245,7 +252,7 @@ public class Order extends AggregateRoot <OrderId> {
             return this;
         }
 
-        public com.food.ordering.system.order.service.domain.entity.Order build() {
+        public Order build() {
             return new Order(this);
         }
     }

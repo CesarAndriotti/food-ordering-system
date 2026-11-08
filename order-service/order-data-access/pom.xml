@@ -23,8 +23,4 @@
         </dependency>
     </dependencies>
 
-    <!-- NO TIENE DEPENDENCIA DE DOMAIN -->
-
-    <!-- SOLO DEPENDE DE ORDER-APPLICATION-SERVICE -->
-
 </project>
